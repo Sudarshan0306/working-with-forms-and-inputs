@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Input from "./Input";
 
 export default function Login() {
   const [inputs, setInputs] = useState({
@@ -6,22 +7,38 @@ export default function Login() {
     password: "",
   });
 
-  const emailIsInvalid = inputs.email !== '' && !inputs.email.includes("@");
+  const [didEdit, setDidEdit] = useState({
+    email: false,
+    password: false,
+  });
+
+  const handleInputBlur = (identifier) => {
+    setDidEdit((prevState) => ({
+      ...prevState,
+      [identifier]: true,
+    }));
+  };
+  const emailIsInvalid = didEdit.email && !inputs.email.includes("@");
+  const passwordIsInvalid = didEdit.password && inputs.password.length < 6;
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("submitted");
-    console.log(inputs);
+    // console.log("submitted");
+    // console.log(inputs);
   };
 
-  const handleFieldsChange = (e) => {
-    let name = e.target.name;
-    let value = e.target.value;
-    setInputs((prevState) => {
-      return {
-        ...prevState,
-        [name]: value,
-      };
-    });
+  const handleFieldsChange = (identifier, value) => {
+    // let name = e.target.name;
+    // let value = e.target.value;
+    setInputs((prevState) => ({
+      ...prevState,
+      [identifier]: value,
+    }));
+
+    setDidEdit((prevEdit) => ({
+      ...prevEdit,
+      [identifier]: false,
+    }));
   };
 
   return (
@@ -29,34 +46,32 @@ export default function Login() {
       <h2>Login</h2>
 
       <div className="control-row">
-        <div className="control no-margin">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            onChange={handleFieldsChange}
-            value={inputs.email}
-          />
-          <div className="control-error">
-            {emailIsInvalid && <p>Please enter a valid email address.</p>}
-          </div>
-        </div>
-
-        <div className="control no-margin">
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            onChange={handleFieldsChange}
-            value={inputs.password}
-          />
-        </div>
+        <Input
+          label="Email"
+          id="email"
+          type="email"
+          name="email"
+          onBlur={() => handleInputBlur("email")}
+          onChange={(e) => handleFieldsChange("email", e.target.value)}
+          value={inputs.email}
+          error={emailIsInvalid && 'Please enter a valid email address.'}
+        />
+        <Input
+          label="Password"
+          id="password"
+          type="password"
+          name="password"
+          onBlur={() => handleInputBlur("password")}
+          onChange={(e) => handleFieldsChange("password", e.target.value)}
+          value={inputs.password}
+          error={passwordIsInvalid && 'Please enter a valid password.'}
+        />
       </div>
 
       <p className="form-actions">
-        <button className="button button-flat">Reset</button>
+        <button type="reset" className="button button-flat">
+          Reset
+        </button>
         <button className="button">Login</button>
       </p>
     </form>
